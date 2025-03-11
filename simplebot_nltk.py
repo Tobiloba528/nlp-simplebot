@@ -1,13 +1,61 @@
+# WRITE YOUR CODE HERE
 import tkinter.scrolledtext as tks #creates a scrollable text window
 
 from datetime import datetime
 from tkinter import *
 
+from openai import OpenAI
 
-# Generating response
+# Initialize the OpenAI client with the API key
+client = OpenAI()
+
+# Generating response using updated gpt-4o-mini-turbo model with chat completions
 def get_bot_response(user_input):
-   
-  return bot_response
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant chatbot."},
+            {"role": "user", "content": user_input}
+        ]
+    )
+    return response.choices[0].message.content
+
+
+
+
+# # Generating response
+# def get_bot_response(user_input):
+
+#   bot_response = ""
+#   if(user_input == "hello"):
+#     bot_response = "Hi!"
+#   elif(user_input == "hi" or user_input == "hii" or user_input == "hiiii"):
+#     bot_response = "Hello there! How are you?"
+#   elif(user_input == "how are you"):
+#     bot_response = "Oh, I'm great! How about you?"
+#   elif(user_input == "fine" or user_input == "i am good" or user_input == "i am doing good"):
+#     bot_response = "That's excellent! How can I help you today?"
+#   else:
+#     bot_response = "I'm sorry, I don't understand..."      
+    
+#   return bot_response
+
+
+def send(event):
+    chatWindow.config(state=NORMAL)
+
+    user_input = userEntryBox.get("1.0",'end-2c')
+    user_input_lc = user_input.lower()
+    bot_response = get_bot_response(user_input_lc) 
+
+    create_and_insert_user_frame(user_input)
+    create_and_insert_bot_frame(bot_response)
+
+    chatWindow.config(state=DISABLED)
+    userEntryBox.delete("1.0","end")
+    chatWindow.see('end')
+
+
 
 
 def create_and_insert_user_frame(user_input):
@@ -50,30 +98,28 @@ def create_and_insert_bot_frame(bot_response):
   chatWindow.insert(END, "\n\n" + "")
 
 
-def send(event):
-    chatWindow.config(state=NORMAL)
 
-    user_input = userEntryBox.get("1.0",'end-2c')
-    user_input_lc = user_input.lower()
-    bot_response = get_bot_response(user_input_lc) 
-
-    create_and_insert_user_frame(user_input)
-    create_and_insert_bot_frame(bot_response)
-
-    chatWindow.config(state=DISABLED)
-    userEntryBox.delete("1.0","end")
-    chatWindow.see('end')
-
-
+# Create the main application window using Tk()
 baseWindow = Tk()
-baseWindow.title("The Simple Bot")
-baseWindow.geometry("500x300")
 
+# Set the title of the window
+baseWindow.title("The Simple Bot")
+
+# Set the size of the window
+baseWindow.geometry("500x250")
+
+# Create the chat window as a ScrolledText widget with "Arial" font
 chatWindow = tks.ScrolledText(baseWindow, font="Arial")
+
+# Configure tags for message alignment: 'tag-left' for bot messages, 'tag-right' for user messages
 chatWindow.tag_configure('tag-left', justify='left')
 chatWindow.tag_configure('tag-right', justify='right')
+
+# Disable the chat window initially (it should not be editable by the user)
 chatWindow.config(state=DISABLED)
 
+# Create the send button, with specific font, text, and background color
+# The 'command' option is commented out. Uncomment it and replace 'send' with your send function's name
 sendButton = Button(
     baseWindow,
     font=("Verdana", 12, 'bold'),
@@ -85,10 +131,13 @@ sendButton = Button(
 sendButton.bind("<Button-1>", send)
 baseWindow.bind('<Return>', send)
 
+# Create the user entry box where the user types their messages
 userEntryBox = Text(baseWindow, bd=1, bg="white", width=38, font="Arial")
 
-chatWindow.place(x=1, y=1, height=270, width=500)
-userEntryBox.place(x=3, y=272, height=27)
-sendButton.place(x=430, y=270)
+# Place the chat window, user entry box, and send button on the main window using specific coordinates and sizes
+chatWindow.place(x=1, y=1, height=200, width=500)
+userEntryBox.place(x=3, y=202, height=27)
+sendButton.place(x=430, y=200)
 
+# Start the main event loop to keep the application running and responsive
 baseWindow.mainloop()    
